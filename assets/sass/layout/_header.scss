@@ -7,8 +7,8 @@
 /* Header */
 
 	#header {
-		@include padding(0em, 0, (3em, 0, -5em, 0));
-
+		@include padding(0em, 0, (3.5em, 0, -5em, 0));
+		background-color: _palette(bg-alt);
 		.logo {
 			display: block;
 			border-bottom: 0;
@@ -59,7 +59,7 @@
 						height: 3em;
 						line-height: 3em;
 						padding: 0 1.5em;
-
+						background-color: _palette(bg-alt);
 						background-color: transparentize(_palette(bg-alt), 0.5);
 						border-radius: _size(border-radius);
 						border: 0;

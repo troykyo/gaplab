@@ -2291,7 +2291,8 @@ body.is-touch .tiles article .content {
 
 /* Header */
 #header {
-  padding: 3em 0 0.1em 0;
+  padding: 3.5em 0 0.1em 0;
+  background-color: #f6f6f6;
 }
 #header .logo {
   display: block;
@@ -2344,7 +2345,8 @@ body.is-touch .tiles article .content {
   height: 3em;
   line-height: 3em;
   padding: 0 1.5em;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: #f6f6f6;
+  background-color: rgba(246, 246, 246, 0.5);
   border-radius: 4px;
   border: 0;
   font-size: 0.8em;
