@@ -1,0 +1,14 @@
+{
+  "id": "msg_test123",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"homeTeam\":\"Ajax\",\"awayTeam\":\"Feyenoord\",\"stadium\":\"Johan Cruyff Arena\",\"clockTime\":\"45'\",\"visibleScore\":{\"home\":2,\"away\":1},\"recognizedPlayers\":[{\"name\":\"Brian Brobbey\",\"jerseyNumber\":9}],\"confidence\":0.88}"
+    }
+  ],
+  "model": "claude-sonnet-4-6",
+  "stop_reason": "end_turn",
+  "usage": {"input_tokens": 1820, "output_tokens": 120}
+}
