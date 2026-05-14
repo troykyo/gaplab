@@ -9,6 +9,10 @@ struct ContentView: View {
                 .tabItem { Label(AppTab.timeline.rawValue, systemImage: AppTab.timeline.systemImage) }
                 .tag(AppTab.timeline)
 
+            PostingQueueView()
+                .tabItem { Label(AppTab.queue.rawValue, systemImage: AppTab.queue.systemImage) }
+                .tag(AppTab.queue)
+
             AddMatchView()
                 .tabItem { Label(AppTab.addMatch.rawValue, systemImage: AppTab.addMatch.systemImage) }
                 .tag(AppTab.addMatch)

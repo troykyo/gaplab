@@ -9,6 +9,7 @@
         <attribute name="position" attributeType="String" defaultValueString="Midfielder"/>
         <relationship name="careerEntries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CareerEntry" inverseName="player" inverseEntity="CareerEntry"/>
         <relationship name="matchPhotos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MatchPhoto" inverseName="player" inverseEntity="MatchPhoto"/>
+        <relationship name="stagedPhotos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="StagedPhoto" inverseName="player" inverseEntity="StagedPhoto"/>
     </entity>
     <entity name="CareerEntry" representedClassName="CareerEntry" syncable="YES" codeGenerationType="none">
         <attribute name="ageGroup" attributeType="String" defaultValueString="U14"/>
@@ -43,5 +44,17 @@
         <attribute name="thumbnailData" optional="YES" attributeType="Binary"/>
         <relationship name="matchRecord" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MatchRecord" inverseName="photos" inverseEntity="MatchRecord"/>
         <relationship name="player" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Player" inverseName="matchPhotos" inverseEntity="Player"/>
+        <relationship name="stagedFrom" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="StagedPhoto" inverseName="postedAs" inverseEntity="StagedPhoto"/>
+    </entity>
+    <entity name="StagedPhoto" representedClassName="StagedPhoto" syncable="YES" codeGenerationType="none">
+        <attribute name="addedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="exifDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="phAssetLocalIdentifier" attributeType="String" defaultValueString=""/>
+        <attribute name="queuePosition" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="status" attributeType="String" defaultValueString="pending"/>
+        <attribute name="thumbnailData" optional="YES" attributeType="Binary"/>
+        <relationship name="player" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Player" inverseName="stagedPhotos" inverseEntity="Player"/>
+        <relationship name="postedAs" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MatchPhoto" inverseName="stagedFrom" inverseEntity="MatchPhoto"/>
     </entity>
 </model>

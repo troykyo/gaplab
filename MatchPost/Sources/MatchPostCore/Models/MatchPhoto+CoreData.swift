@@ -20,6 +20,7 @@ extension MatchPhoto {
     @NSManaged public var captionText: String?
     @NSManaged public var matchRecord: MatchRecord?
     @NSManaged public var player: Player?
+    @NSManaged public var stagedFrom: StagedPhoto?
 
     var nsImage: NSImage? { NSImage(data: imageData) }
     var thumbnail: NSImage? { thumbnailData.flatMap { NSImage(data: $0) } }

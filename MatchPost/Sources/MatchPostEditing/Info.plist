@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSExtension</key>
+    <dict>
+        <key>NSExtensionPointIdentifier</key>
+        <string>com.apple.photo-editing</string>
+        <key>NSExtensionPrincipalClass</key>
+        <string>EditingExtensionController</string>
+        <key>PHSupportedMediaTypes</key>
+        <array>
+            <string>PHSupportedMediaTypeImage</string>
+        </array>
+    </dict>
+    <key>NSHumanReadableCopyright</key>
+    <string>GAP Lab — Amsterdam University of Applied Sciences</string>
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>group.com.troykyo.matchpost</string>
+    </array>
+</dict>
+</plist>

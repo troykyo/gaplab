@@ -17,6 +17,7 @@ extension Player {
     @NSManaged public var instagramHandle: String?
     @NSManaged public var careerEntries: NSSet?
     @NSManaged public var matchPhotos: NSSet?
+    @NSManaged public var stagedPhotos: NSSet?
 
     var sortedCareerEntries: [CareerEntry] {
         let entries = careerEntries as? Set<CareerEntry> ?? []
@@ -59,4 +60,10 @@ extension Player {
 
     @objc(removeMatchPhotosObject:)
     @NSManaged public func removeFromMatchPhotos(_ value: MatchPhoto)
+
+    @objc(addStagedPhotosObject:)
+    @NSManaged public func addToStagedPhotos(_ value: StagedPhoto)
+
+    @objc(removeStagedPhotosObject:)
+    @NSManaged public func removeFromStagedPhotos(_ value: StagedPhoto)
 }

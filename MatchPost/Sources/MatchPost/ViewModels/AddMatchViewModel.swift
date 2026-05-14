@@ -28,12 +28,36 @@ final class AddMatchViewModel: ObservableObject {
     var viewContext: NSManagedObjectContext?
     var player: Player?
 
+    /// Set when launched from the posting queue so we can mark it posted on success.
+    var sourceStagedPhoto: StagedPhoto?
+    private let queueVM = PostingQueueViewModel()
+
     // MARK: - Step 1: Photo selected
 
     func photoSelected(_ image: NSImage, data: Data) {
         selectedImage = image
         selectedImageData = data
         exifData = EXIFReader.extract(from: data)
+    }
+
+    /// Load a StagedPhoto from the queue, fetching full-res data via PHImageManager.
+    func loadFromQueue(_ staged: StagedPhoto) {
+        sourceStagedPhoto = staged
+        step = .analyzing
+        Task {
+            do {
+                queueVM.load(context: viewContext!, player: player)
+                let data = try await queueVM.loadFullResImage(for: staged)
+                guard let image = NSImage(data: data) else { throw AppError.imageResizeFailed }
+                photoSelected(image, data: data)
+                // Immediately kick off analysis
+                analyze()
+            } catch let e as AppError {
+                error = e; step = .failed
+            } catch {
+                self.error = .noImageSelected; step = .failed
+            }
+        }
     }
 
     // MARK: - Step 2: Analyze

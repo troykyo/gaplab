@@ -6,6 +6,8 @@ final class AppState: ObservableObject {
     @Published var selectedTab: AppTab = .timeline
     @Published var activePlayer: Player?
     @Published var error: AppError?
+    /// Set by PostingQueueView to pre-load a staged photo into AddMatchView
+    @Published var pendingStagedPhoto: StagedPhoto?
 
     let persistenceController = PersistenceController.shared
 
@@ -29,6 +31,7 @@ final class AppState: ObservableObject {
 
 enum AppTab: String, CaseIterable {
     case timeline = "Timeline"
+    case queue    = "Queue"
     case addMatch = "Add Match"
     case profile  = "Profile"
     case gaplab   = "GAP Lab"
@@ -37,6 +40,7 @@ enum AppTab: String, CaseIterable {
     var systemImage: String {
         switch self {
         case .timeline:  return "clock.fill"
+        case .queue:     return "tray.full.fill"
         case .addMatch:  return "plus.circle.fill"
         case .profile:   return "person.fill"
         case .gaplab:    return "globe"
@@ -55,10 +59,19 @@ final class PersistenceController {
 
     let container: NSPersistentContainer
 
+    static let appGroupID = "group.com.troykyo.matchpost"
+
     init(inMemory: Bool = false) {
         container = NSPersistentContainer(name: "MatchPost")
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
+        } else {
+            // Use App Group container so extensions share the same store
+            if let groupURL = FileManager.default
+                .containerURL(forSecurityApplicationGroupIdentifier: Self.appGroupID) {
+                let storeURL = groupURL.appendingPathComponent("MatchPost.sqlite")
+                container.persistentStoreDescriptions = [NSPersistentStoreDescription(url: storeURL)]
+            }
         }
         container.loadPersistentStores { _, error in
             if let error { fatalError("CoreData load failed: \(error)") }
