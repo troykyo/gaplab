@@ -28,8 +28,10 @@ final class AddMatchViewModel: ObservableObject {
     var viewContext: NSManagedObjectContext?
     var player: Player?
 
-    /// Set when launched from the posting queue so we can mark it posted on success.
+    /// Set when launched from the posting queue (legacy single-photo path).
     var sourceStagedPhoto: StagedPhoto?
+    /// Set when launched from the posting queue for a group (single or carousel).
+    var sourceStagedGroup: StagedPostGroup?
     private let queueVM = PostingQueueViewModel()
 
     // MARK: - Step 1: Photo selected
@@ -50,7 +52,27 @@ final class AddMatchViewModel: ObservableObject {
                 let data = try await queueVM.loadFullResImage(for: staged)
                 guard let image = NSImage(data: data) else { throw AppError.imageResizeFailed }
                 photoSelected(image, data: data)
-                // Immediately kick off analysis
+                analyze()
+            } catch let e as AppError {
+                error = e; step = .failed
+            } catch {
+                self.error = .noImageSelected; step = .failed
+            }
+        }
+    }
+
+    /// Load the cover photo from a staged group for analysis. Remaining photos in the group
+    /// are uploaded together during posting if the group is a carousel.
+    func loadFromQueue(_ group: StagedPostGroup) {
+        sourceStagedGroup = group
+        guard let cover = group.coverPhoto else { step = .failed; error = .noImageSelected; return }
+        step = .analyzing
+        Task {
+            do {
+                queueVM.load(context: viewContext!, player: player)
+                let data = try await queueVM.loadFullResImage(for: cover)
+                guard let image = NSImage(data: data) else { throw AppError.imageResizeFailed }
+                photoSelected(image, data: data)
                 analyze()
             } catch let e as AppError {
                 error = e; step = .failed
@@ -150,15 +172,43 @@ final class AddMatchViewModel: ObservableObject {
     }
 
     func publishToInstagram() {
-        guard let url = hostedURL, var post = post else { return }
+        guard var post = post else { return }
         step = .posting
 
         Task {
             do {
-                let postID = try await instagram.publish(imageURL: url, caption: post.fullCaption)
+                queueVM.load(context: viewContext!, player: player)
+                let postID: String
+
+                if let group = sourceStagedGroup, group.isCarousel {
+                    // Upload all photos in the group and post as a carousel.
+                    // The cover photo URL is already in hostedURL; upload the remaining photos.
+                    var imageURLs: [URL] = []
+                    if let coverURL = hostedURL { imageURLs.append(coverURL) }
+
+                    let photos = group.sortedPhotos
+                    let nonCoverID = group.coverAssetID ?? photos.first?.phAssetLocalIdentifier
+                    for photo in photos where photo.phAssetLocalIdentifier != nonCoverID {
+                        let data = try await queueVM.loadFullResImage(for: photo)
+                        guard let image = NSImage(data: data),
+                              let jpeg = ImageResizer.resize(image) else { throw AppError.imageResizeFailed }
+                        let url = try await hosting.upload(jpeg)
+                        imageURLs.append(url)
+                    }
+                    postID = try await instagram.publishCarousel(imageURLs: imageURLs, caption: post.fullCaption)
+                    let matchPhoto = saveMatchPhoto(instagramPostID: postID)
+                    if let mp = matchPhoto { queueVM.markPosted(group, as: mp) }
+                } else {
+                    guard let url = hostedURL else { throw AppError.imageUploadFailed("No hosted URL") }
+                    postID = try await instagram.publish(imageURL: url, caption: post.fullCaption)
+                    let matchPhoto = saveMatchPhoto(instagramPostID: postID)
+                    if let group = sourceStagedGroup, let mp = matchPhoto {
+                        queueVM.markPosted(group, as: mp)
+                    }
+                }
+
                 post.publishedPostID = postID
                 self.post = post
-                saveMatchPhoto(instagramPostID: postID)
                 step = .done
             } catch let e as AppError {
                 error = e; step = .failed
@@ -199,10 +249,11 @@ final class AddMatchViewModel: ObservableObject {
         return m.homeTeam.lowercased().contains(teamName.lowercased()) ? m.awayTeam : m.homeTeam
     }
 
-    private func saveMatchPhoto(instagramPostID: String?) {
+    @discardableResult
+    private func saveMatchPhoto(instagramPostID: String?) -> MatchPhoto? {
         guard let ctx = viewContext,
               let imageData = selectedImageData,
-              let image = NSImage(data: imageData) else { return }
+              let image = NSImage(data: imageData) else { return nil }
         let photo = MatchPhoto(context: ctx)
         photo.imageData = imageData
         photo.thumbnailData = ImageResizer.makeThumbnail(image)
@@ -215,6 +266,7 @@ final class AddMatchViewModel: ObservableObject {
         photo.player = player
         photo.matchRecord = buildMatchRecord()
         try? ctx.save()
+        return photo
     }
 
     func reset() {
@@ -222,6 +274,7 @@ final class AddMatchViewModel: ObservableObject {
         selectedImage = nil; selectedImageData = nil; exifData = nil
         analysis = nil; knvbMatches = []; selectedMatch = nil
         manualMatch = .empty; post = nil; hostedURL = nil; error = nil
+        sourceStagedPhoto = nil; sourceStagedGroup = nil
     }
 }
 

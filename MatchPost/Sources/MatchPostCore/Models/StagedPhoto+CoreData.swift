@@ -18,6 +18,7 @@ extension StagedPhoto {
     @NSManaged public var status: String
     @NSManaged public var player: Player?
     @NSManaged public var postedAs: MatchPhoto?
+    @NSManaged public var group: StagedPostGroup?
 
     var isPending:  Bool { status == StagedPhotoStatus.pending.rawValue }
     var isPosted:   Bool { status == StagedPhotoStatus.posted.rawValue }

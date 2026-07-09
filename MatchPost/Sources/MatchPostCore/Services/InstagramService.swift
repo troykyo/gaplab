@@ -14,6 +14,47 @@ final class InstagramService {
         return try await publishContainer(id: containerID)
     }
 
+    /// Post 2–10 images as a single Instagram carousel post.
+    func publishCarousel(imageURLs: [URL], caption: String) async throws -> String {
+        guard imageURLs.count >= 2 else {
+            return try await publish(imageURL: imageURLs[0], caption: caption)
+        }
+        let uid   = try userID
+        let token = try token
+
+        // Step 1: Create a child container for each image (no caption, is_carousel_item=true)
+        var childIDs: [String] = []
+        for url in imageURLs.prefix(10) {
+            let req = buildPOST(url: base.appendingPathComponent("\(uid)/media"), params: [
+                "image_url":         url.absoluteString,
+                "is_carousel_item":  "true",
+                "access_token":      token,
+            ])
+            let data = try await send(req)
+            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let id = json["id"] as? String else {
+                throw AppError.instagramContainerFailed("No child container ID returned")
+            }
+            childIDs.append(id)
+        }
+
+        // Step 2: Create the carousel container
+        let carouselReq = buildPOST(url: base.appendingPathComponent("\(uid)/media"), params: [
+            "media_type":   "CAROUSEL",
+            "children":     childIDs.joined(separator: ","),
+            "caption":      caption,
+            "access_token": token,
+        ])
+        let carouselData = try await send(carouselReq)
+        guard let carouselJSON = try? JSONSerialization.jsonObject(with: carouselData) as? [String: Any],
+              let carouselID = carouselJSON["id"] as? String else {
+            throw AppError.instagramContainerFailed("No carousel container ID returned")
+        }
+
+        try await pollUntilFinished(containerID: carouselID)
+        return try await publishContainer(id: carouselID)
+    }
+
     // MARK: - Steps
 
     func createContainer(imageURL: URL, caption: String) async throws -> String {

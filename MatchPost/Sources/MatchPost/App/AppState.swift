@@ -6,8 +6,10 @@ final class AppState: ObservableObject {
     @Published var selectedTab: AppTab = .timeline
     @Published var activePlayer: Player?
     @Published var error: AppError?
-    /// Set by PostingQueueView to pre-load a staged photo into AddMatchView
+    /// Set by PostingQueueView to pre-load a staged photo into AddMatchView (legacy single-photo path)
     @Published var pendingStagedPhoto: StagedPhoto?
+    /// Set by PostingQueueView to pre-load a group (single or carousel) into AddMatchView
+    @Published var pendingStagedGroup: StagedPostGroup?
 
     let persistenceController = PersistenceController.shared
 

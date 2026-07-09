@@ -18,6 +18,7 @@ extension Player {
     @NSManaged public var careerEntries: NSSet?
     @NSManaged public var matchPhotos: NSSet?
     @NSManaged public var stagedPhotos: NSSet?
+    @NSManaged public var stagedGroups: NSSet?
 
     var sortedCareerEntries: [CareerEntry] {
         let entries = careerEntries as? Set<CareerEntry> ?? []
@@ -66,4 +67,10 @@ extension Player {
 
     @objc(removeStagedPhotosObject:)
     @NSManaged public func removeFromStagedPhotos(_ value: StagedPhoto)
+
+    @objc(addStagedGroupsObject:)
+    @NSManaged public func addToStagedGroups(_ value: StagedPostGroup)
+
+    @objc(removeStagedGroupsObject:)
+    @NSManaged public func removeFromStagedGroups(_ value: StagedPostGroup)
 }

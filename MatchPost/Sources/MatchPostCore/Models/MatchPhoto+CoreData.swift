@@ -21,6 +21,7 @@ extension MatchPhoto {
     @NSManaged public var matchRecord: MatchRecord?
     @NSManaged public var player: Player?
     @NSManaged public var stagedFrom: StagedPhoto?
+    @NSManaged public var stagedGroup: StagedPostGroup?
 
     var nsImage: NSImage? { NSImage(data: imageData) }
     var thumbnail: NSImage? { thumbnailData.flatMap { NSImage(data: $0) } }

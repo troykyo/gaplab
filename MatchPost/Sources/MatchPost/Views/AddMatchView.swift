@@ -22,8 +22,10 @@ struct AddMatchView: View {
         .onAppear {
             vm.viewContext = appState.viewContext
             vm.player = appState.activePlayer
-            // If the queue handed us a staged photo, load it immediately
-            if let staged = appState.pendingStagedPhoto {
+            if let group = appState.pendingStagedGroup {
+                appState.pendingStagedGroup = nil
+                vm.loadFromQueue(group)
+            } else if let staged = appState.pendingStagedPhoto {
                 appState.pendingStagedPhoto = nil
                 vm.loadFromQueue(staged)
             }
