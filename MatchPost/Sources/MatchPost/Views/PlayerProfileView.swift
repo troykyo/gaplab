@@ -18,7 +18,7 @@ struct PlayerProfileView: View {
                             ForEach(vm.positions, id: \.self) { Text($0) }
                         }
                         LabeledTextField("Current Club", text: $vm.currentTeam)
-                        LabeledTextField("Jersey Number", text: $vm.jerseyNumber)
+                        LabeledTextField("Shirt Number", text: $vm.jerseyNumber)
                         LabeledTextField("Instagram Handle (@)", text: $vm.instagramHandle)
                         DatePicker("Date of Birth", selection: $vm.dateOfBirth, displayedComponents: .date)
                     }

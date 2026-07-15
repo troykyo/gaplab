@@ -65,7 +65,8 @@ struct PostingQueueView: View {
                         onToggleExpand: {
                             expandedGroupID = expandedGroupID == group.objectID ? nil : group.objectID
                         },
-                        onSetCover: { photo in vm.setCover(photo, in: group) },
+                        onMakeCover: { photo in vm.makeCover(photo, in: group) },
+                        onMovePhoto: { photo, offset in vm.movePhoto(photo, by: offset, in: group) },
                         onSkip:     { vm.skip(group) },
                         onMoveEnd:  { vm.moveToEnd(group) },
                         onPostThis: {
@@ -125,7 +126,8 @@ struct StagedGroupRow: View {
     let isNext: Bool
     let isExpanded: Bool
     let onToggleExpand: () -> Void
-    let onSetCover: (StagedPhoto) -> Void
+    let onMakeCover: (StagedPhoto) -> Void
+    let onMovePhoto: (StagedPhoto, Int) -> Void
     let onSkip: () -> Void
     let onMoveEnd: () -> Void
     let onPostThis: () -> Void
@@ -164,7 +166,7 @@ struct StagedGroupRow: View {
                     }
                     Text(sessionLabel)
                         .font(.subheadline)
-                    HStack(spacing: 4) {
+                    HStack(spacing: 6) {
                         if group.isCarousel {
                             Image(systemName: "rectangle.stack.fill")
                                 .font(.caption)
@@ -173,6 +175,7 @@ struct StagedGroupRow: View {
                         Text(typeLabel)
                             .font(.caption)
                             .foregroundStyle(group.isCarousel ? .blue : .secondary)
+                        homeAwayBadge
                     }
                 }
 
@@ -192,7 +195,7 @@ struct StagedGroupRow: View {
                             Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         }
                         .buttonStyle(.borderless)
-                        .help("Select cover photo")
+                        .help("Arrange photo order")
                     }
                     Menu {
                         Button("Move to End of Queue", action: onMoveEnd)
@@ -207,10 +210,10 @@ struct StagedGroupRow: View {
             }
             .padding(12)
 
-            // Expanded: photo strip for cover selection
+            // Expanded: arrange the carousel order (first photo = cover)
             if isExpanded {
                 Divider().padding(.horizontal, 12)
-                coverSelector
+                orderEditor
                     .padding(12)
             }
         }
@@ -225,6 +228,29 @@ struct StagedGroupRow: View {
     }
 
     // MARK: - Sub-views
+
+    /// Home/away chip derived from photo GPS vs configured home grounds.
+    @ViewBuilder
+    private var homeAwayBadge: some View {
+        switch group.isHomeMatch {
+        case .some(true):
+            chip("Home · \(group.homeVenue?.name ?? "")", color: .green,
+                 icon: "house.fill")
+        case .some(false):
+            chip("Away", color: .orange, icon: "bus.fill")
+        case .none:
+            EmptyView()   // no GPS on any photo — user picks home/away in the form
+        }
+    }
+
+    private func chip(_ text: String, color: Color, icon: String) -> some View {
+        Label(text, systemImage: icon)
+            .font(.caption2.bold())
+            .foregroundStyle(color)
+            .padding(.horizontal, 6).padding(.vertical, 2)
+            .background(color.opacity(0.12))
+            .clipShape(Capsule())
+    }
 
     private var positionBadge: some View {
         ZStack {
@@ -284,48 +310,68 @@ struct StagedGroupRow: View {
         }
     }
 
-    private var coverSelector: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Tap a photo to set it as the cover (first in carousel)")
+    private var orderEditor: some View {
+        let ordered = group.sortedPhotos
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("Arrange the post order — the first photo is the cover Instagram shows")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(group.sortedPhotos, id: \.objectID) { photo in
-                        let isCover = photo.phAssetLocalIdentifier ==
-                            (group.coverAssetID ?? group.sortedPhotos.first?.phAssetLocalIdentifier)
-                        Button { onSetCover(photo) } label: {
-                            ZStack(alignment: .topTrailing) {
+                HStack(spacing: 12) {
+                    ForEach(Array(ordered.enumerated()), id: \.element.objectID) { index, photo in
+                        VStack(spacing: 6) {
+                            ZStack(alignment: .topLeading) {
                                 if let data = photo.thumbnailData, let img = NSImage(data: data) {
                                     Image(nsImage: img)
                                         .resizable()
                                         .scaledToFill()
-                                        .frame(width: 80, height: 80)
+                                        .frame(width: 84, height: 84)
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
                                 } else {
                                     RoundedRectangle(cornerRadius: 8)
                                         .fill(Color.secondary.opacity(0.15))
-                                        .frame(width: 80, height: 80)
+                                        .frame(width: 84, height: 84)
                                         .overlay(Image(systemName: "photo").foregroundStyle(.tertiary))
                                 }
-                                if isCover {
-                                    Image(systemName: "star.fill")
-                                        .font(.caption)
-                                        .foregroundStyle(.yellow)
-                                        .padding(4)
-                                        .background(.black.opacity(0.4))
-                                        .clipShape(Circle())
-                                        .padding(4)
-                                }
+                                // Position number; #1 is the cover
+                                Text(index == 0 ? "★ 1" : "\(index + 1)")
+                                    .font(.caption2.bold())
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 5).padding(.vertical, 2)
+                                    .background(index == 0 ? Color.yellow.opacity(0.85) : Color.black.opacity(0.55))
+                                    .clipShape(Capsule())
+                                    .padding(4)
                             }
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .strokeBorder(isCover ? Color.accentColor : .clear, lineWidth: 2)
+                                    .strokeBorder(index == 0 ? Color.accentColor : .clear, lineWidth: 2)
                             )
+
+                            HStack(spacing: 6) {
+                                Button { onMovePhoto(photo, -1) } label: {
+                                    Image(systemName: "chevron.left")
+                                }
+                                .disabled(index == 0)
+                                .help("Move earlier")
+
+                                Button { onMakeCover(photo) } label: {
+                                    Image(systemName: "star")
+                                }
+                                .disabled(index == 0)
+                                .help("Make cover (move to front)")
+
+                                Button { onMovePhoto(photo, +1) } label: {
+                                    Image(systemName: "chevron.right")
+                                }
+                                .disabled(index == ordered.count - 1)
+                                .help("Move later")
+                            }
+                            .buttonStyle(.borderless)
+                            .controlSize(.small)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
+                .padding(.vertical, 2)
             }
         }
     }

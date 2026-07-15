@@ -29,10 +29,27 @@ final class PostingQueueViewModel: ObservableObject {
     var pendingCount: Int { pendingGroups.count }
     var totalPhotoCount: Int { pendingGroups.reduce(0) { $0 + $1.photoCount } }
 
-    // MARK: - Cover photo selection
+    // MARK: - Photo ordering within a match post
 
-    func setCover(_ photo: StagedPhoto, in group: StagedPostGroup) {
-        group.coverAssetID = photo.phAssetLocalIdentifier
+    /// Move a photo one step left (-1) or right (+1) in the carousel order.
+    func movePhoto(_ photo: StagedPhoto, by offset: Int, in group: StagedPostGroup) {
+        var ordered = group.sortedPhotos
+        guard let index = ordered.firstIndex(of: photo) else { return }
+        let target = index + offset
+        guard ordered.indices.contains(target) else { return }
+        ordered.swapAt(index, target)
+        group.applyOrder(ordered)
+        try? context?.save()
+        objectWillChange.send()
+    }
+
+    /// Move a photo to the front — it becomes the cover (first image in the post).
+    func makeCover(_ photo: StagedPhoto, in group: StagedPostGroup) {
+        var ordered = group.sortedPhotos
+        guard let index = ordered.firstIndex(of: photo) else { return }
+        ordered.remove(at: index)
+        ordered.insert(photo, at: 0)
+        group.applyOrder(ordered)
         try? context?.save()
         objectWillChange.send()
     }
@@ -129,7 +146,9 @@ final class PostingQueueViewModel: ObservableObject {
                         id:            UUID().uuidString,
                         exifDate:      exif.date,
                         thumbnailData: thumbnail,
-                        imageData:     data
+                        imageData:     data,
+                        latitude:      exif.coordinate?.latitude  ?? 0,
+                        longitude:     exif.coordinate?.longitude ?? 0
                     ))
                 }
             }
@@ -145,7 +164,9 @@ final class PostingQueueViewModel: ObservableObject {
                         id:            UUID().uuidString,
                         exifDate:      exif.date,
                         thumbnailData: thumbnail,
-                        imageData:     data
+                        imageData:     data,
+                        latitude:      exif.coordinate?.latitude  ?? 0,
+                        longitude:     exif.coordinate?.longitude ?? 0
                     ))
                 }
             }

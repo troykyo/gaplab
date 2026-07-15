@@ -15,7 +15,7 @@ final class ClaudeService {
         let body: [String: Any] = [
             "model": model,
             "max_tokens": 1024,
-            "system": "You are a soccer match analyst. Always respond with valid JSON only, no markdown.",
+            "system": "You are a football match analyst. Always respond with valid JSON only, no markdown.",
             "messages": [[
                 "role": "user",
                 "content": [
@@ -23,7 +23,7 @@ final class ClaudeService {
                      "source": ["type": "base64", "media_type": "image/jpeg", "data": base64]],
                     ["type": "text",
                      "text": """
-                     Analyze this soccer match photo. Return a JSON object with these exact keys:
+                     Analyze this football match photo. Return a JSON object with these exact keys:
                      - homeTeam: string (team name on the left/home side)
                      - awayTeam: string (team name on the right/away side)
                      - stadium: string or null
@@ -32,7 +32,7 @@ final class ClaudeService {
                      - recognizedPlayers: array of {"name": string, "jerseyNumber": int or null}
                      - confidence: float 0.0-1.0
 
-                     Check in order: (1) text/logos on jerseys, (2) stadium signage/boards,
+                     Check in order: (1) names/badges on shirts, (2) stadium signage/boards,
                      (3) scoreboard text, (4) kit colors as last resort.
                      """]
                 ]
@@ -54,14 +54,16 @@ final class ClaudeService {
         Player: \(player.name), \(ageDisplay), position: \(player.position).
         Career history: \(player.careerSummaryJSON)
         Today's match: \(player.currentTeamName ?? "his team") vs \(match.opponentName) — score \(scoreStr), \
-        \(match.wasHome ? "home" : "away") game\(venue.isEmpty ? "" : " at \(venue)").
+        \(match.wasHome ? "home" : "away") match\(venue.isEmpty ? "" : " at \(venue)").
         Competition: \(match.competition ?? "youth football").
 
         Write an emotional 3–4 sentence Instagram caption in a mix of Dutch and English.
         Reference the player's journey from his earliest career entry to today.
         Include the score prominently. Use exclamations like "Wat een wedstrijd!" or "Trots!".
         End with a blank line then return only the hashtag strings as a JSON array
-        (no # symbol, just the words). Format your full response as JSON:
+        (no # symbol, just the words). All hashtags must be in English — the caption
+        may mix Dutch and English, but hashtags are English only.
+        Format your full response as JSON:
         {"caption": "...", "hashtags": ["tag1", "tag2", ...]}
         """
 

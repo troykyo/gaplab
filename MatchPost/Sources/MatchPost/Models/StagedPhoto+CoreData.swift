@@ -13,6 +13,8 @@ extension StagedPhoto {
     @NSManaged public var imageData: Data?
     @NSManaged public var thumbnailData: Data?
     @NSManaged public var exifDate: Date?
+    @NSManaged public var exifLatitude: Double
+    @NSManaged public var exifLongitude: Double
     @NSManaged public var addedAt: Date
     @NSManaged public var queuePosition: Int32
     @NSManaged public var status: String
@@ -60,11 +62,15 @@ extension StagedPhoto {
         exifDate: Date?,
         thumbnailData: Data?,
         player: Player,
-        context: NSManagedObjectContext
+        context: NSManagedObjectContext,
+        latitude: Double = 0,
+        longitude: Double = 0
     ) -> StagedPhoto {
         let staged = StagedPhoto(context: context)
         staged.phAssetLocalIdentifier = phAssetID
         staged.exifDate       = exifDate
+        staged.exifLatitude   = latitude
+        staged.exifLongitude  = longitude
         staged.thumbnailData  = thumbnailData
         staged.addedAt        = Date()
         staged.status         = StagedPhotoStatus.pending.rawValue

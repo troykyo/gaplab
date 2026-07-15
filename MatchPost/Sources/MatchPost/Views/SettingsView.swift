@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var igAppSecret   = ""
     @State private var savedMessage  = ""
     @State private var showSaved     = false
+    @State private var homeVenues    = HomeVenueLocator.venues
 
     var body: some View {
         ScrollView {
@@ -44,6 +45,38 @@ struct SettingsView: View {
                     }
                     Text("Requires a Creator or Business account. Convert free in Instagram → Settings → Account → Switch to Professional.")
                         .font(.caption).foregroundStyle(.secondary)
+                }
+
+                apiSection("Home Venues", icon: "house.fill") {
+                    Text("Photos with GPS within each venue's radius are auto-marked as home matches; everything else is away.")
+                        .font(.caption).foregroundStyle(.secondary)
+                    ForEach($homeVenues) { $venue in
+                        HStack(spacing: 8) {
+                            TextField("Club", text: $venue.name)
+                                .frame(width: 110)
+                            TextField("Latitude", value: $venue.latitude, format: .number.precision(.fractionLength(4)))
+                                .frame(width: 90)
+                            TextField("Longitude", value: $venue.longitude, format: .number.precision(.fractionLength(4)))
+                                .frame(width: 90)
+                            TextField("Radius m", value: $venue.radiusMeters, format: .number)
+                                .frame(width: 70)
+                            Button(role: .destructive) {
+                                homeVenues.removeAll { $0.id == venue.id }
+                            } label: { Image(systemName: "minus.circle") }
+                            .buttonStyle(.borderless)
+                        }
+                        .textFieldStyle(.roundedBorder)
+                    }
+                    HStack {
+                        Button("Add Venue") {
+                            homeVenues.append(HomeVenue(name: "New Club", latitude: 0, longitude: 0))
+                        }
+                        Button("Reset to Defaults") {
+                            HomeVenueLocator.reset()
+                            homeVenues = HomeVenueLocator.defaultVenues
+                        }
+                    }
+                    .buttonStyle(.bordered)
                 }
 
                 HStack {
@@ -93,6 +126,7 @@ struct SettingsView: View {
         for (value, key) in pairs where !value.isEmpty {
             try? KeychainManager.save(value, for: key)
         }
+        HomeVenueLocator.venues = homeVenues.filter { !$0.name.isEmpty }
         savedMessage = "Settings saved"
         withAnimation { showSaved = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { withAnimation { showSaved = false } }
@@ -154,6 +188,12 @@ struct SecureRow: View {
     let label: String
     @Binding var text: String
     let key: KeychainKey
+
+    init(_ label: String, text: Binding<String>, key: KeychainKey) {
+        self.label = label
+        self._text = text
+        self.key   = key
+    }
 
     var body: some View {
         HStack {

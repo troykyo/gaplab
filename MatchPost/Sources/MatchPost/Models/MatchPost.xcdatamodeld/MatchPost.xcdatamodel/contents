@@ -6,7 +6,7 @@
         <attribute name="dateOfBirth" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="instagramHandle" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String" defaultValueString=""/>
-        <attribute name="position" attributeType="String" defaultValueString="Midfielder"/>
+        <attribute name="position" attributeType="String" defaultValueString="Central Midfielder"/>
         <relationship name="careerEntries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CareerEntry" inverseName="player" inverseEntity="CareerEntry"/>
         <relationship name="matchPhotos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MatchPhoto" inverseName="player" inverseEntity="MatchPhoto"/>
         <relationship name="stagedPhotos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="StagedPhoto" inverseName="player" inverseEntity="StagedPhoto"/>
@@ -51,6 +51,8 @@
     <entity name="StagedPhoto" representedClassName="StagedPhoto" syncable="YES" codeGenerationType="none">
         <attribute name="addedAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="exifDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="exifLatitude" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="exifLongitude" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="imageData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
         <attribute name="phAssetLocalIdentifier" attributeType="String" defaultValueString=""/>
         <attribute name="queuePosition" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>

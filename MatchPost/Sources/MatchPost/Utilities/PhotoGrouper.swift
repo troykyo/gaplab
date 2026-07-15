@@ -6,12 +6,17 @@ public struct StagingCandidate {
     public let exifDate: Date?
     public let thumbnailData: Data?
     public let imageData: Data?    // nil for PHAsset staging (fetched on demand later)
+    public let latitude: Double    // 0 when the photo has no GPS data
+    public let longitude: Double
 
-    public init(id: String, exifDate: Date?, thumbnailData: Data?, imageData: Data? = nil) {
+    public init(id: String, exifDate: Date?, thumbnailData: Data?, imageData: Data? = nil,
+                latitude: Double = 0, longitude: Double = 0) {
         self.id            = id
         self.exifDate      = exifDate
         self.thumbnailData = thumbnailData
         self.imageData     = imageData
+        self.latitude      = latitude
+        self.longitude     = longitude
     }
 }
 
