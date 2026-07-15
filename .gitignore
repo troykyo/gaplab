@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Xcode user state (window layout, open tabs, schemes) — machine-specific
+xcuserdata/
+*.xcuserstate
+
+# Swift Package Manager build artifacts
+.build/
+.swiftpm/xcode/package.xcworkspace/xcuserdata/

@@ -60,7 +60,7 @@ struct TimelineView: View {
                 .foregroundStyle(.secondary)
             Text("No matches yet")
                 .font(.title2.bold())
-            Text("Tap Add Match to record your first game.")
+            Text("Tap Add Match to record your first match.")
                 .foregroundStyle(.secondary)
             Button("Add First Match") {
                 appState.selectedTab = .addMatch
