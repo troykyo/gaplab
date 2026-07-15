@@ -109,6 +109,43 @@ final class StagedPhotoOrderingTests: XCTestCase {
                        "Next-to-post must always be the photo with the oldest EXIF date")
     }
 
+    // MARK: - Group-internal photo order (carousel)
+
+    func testGroupDefaultsToExifOrderOldestFirst() throws {
+        let group = makeGroup(assetIDs: ["b", "a"], dates: [date(2024, 5, 2), date(2024, 5, 1)])
+        XCTAssertEqual(group.sortedPhotos.map(\.phAssetLocalIdentifier), ["a", "b"])
+        XCTAssertEqual(group.coverPhoto?.phAssetLocalIdentifier, "a")
+    }
+
+    func testApplyOrderOverridesExifOrderAndSetsCover() throws {
+        let group = makeGroup(assetIDs: ["a", "b", "c"],
+                              dates: [date(2024, 5, 1), date(2024, 5, 2), date(2024, 5, 3)])
+        // User puts the newest photo first
+        let reordered = group.sortedPhotos.reversed()
+        group.applyOrder(Array(reordered))
+        try ctx.save()
+
+        XCTAssertEqual(group.sortedPhotos.map(\.phAssetLocalIdentifier), ["c", "b", "a"])
+        XCTAssertEqual(group.coverPhoto?.phAssetLocalIdentifier, "c",
+                       "Cover must follow the first photo in the arranged order")
+    }
+
+    private func makeGroup(assetIDs: [String], dates: [Date]) -> StagedPostGroup {
+        let group = StagedPostGroup(context: ctx)
+        group.groupID = UUID()
+        group.addedAt = Date()
+        group.status = StagedPhotoStatus.pending.rawValue
+        group.sessionDate = dates.min() ?? Date()
+        group.player = player
+        for (id, d) in zip(assetIDs, dates) {
+            let photo = StagedPhoto.create(phAssetID: id, exifDate: d, thumbnailData: nil,
+                                           player: player, context: ctx)
+            photo.group = group
+        }
+        try? ctx.save()
+        return group
+    }
+
     // MARK: - Helpers
 
     private func date(_ y: Int, _ m: Int, _ d: Int) -> Date {

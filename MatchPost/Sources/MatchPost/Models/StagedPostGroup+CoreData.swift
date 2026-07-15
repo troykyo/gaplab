@@ -25,9 +25,14 @@ extension StagedPostGroup {
     var isCarousel: Bool { (photos?.count ?? 0) > 1 }
     var photoCount: Int  { photos?.count ?? 0 }
 
+    /// Photos in posting order. User-arranged order (queuePosition, written 1…n on
+    /// reorder) wins; until then falls back to EXIF date, oldest first.
     var sortedPhotos: [StagedPhoto] {
         let set = photos as? Set<StagedPhoto> ?? []
         return set.sorted {
+            if $0.queuePosition != $1.queuePosition {
+                return $0.queuePosition < $1.queuePosition
+            }
             switch ($0.exifDate, $1.exifDate) {
             case (.some(let a), .some(let b)): return a < b
             case (.some, .none):               return true
@@ -37,12 +42,21 @@ extension StagedPostGroup {
         }
     }
 
-    /// The designated cover photo — explicit selection, or oldest by default.
+    /// The cover is the first photo in posting order (Instagram shows it first).
+    /// coverAssetID survives as an explicit override for pre-reorder groups.
     var coverPhoto: StagedPhoto? {
         if let id = coverAssetID {
             return sortedPhotos.first { $0.phAssetLocalIdentifier == id }
         }
         return sortedPhotos.first
+    }
+
+    /// Persist an explicit photo order (1…n) and sync the cover to the first photo.
+    func applyOrder(_ ordered: [StagedPhoto]) {
+        for (index, photo) in ordered.enumerated() {
+            photo.queuePosition = Int32(index + 1)
+        }
+        coverAssetID = ordered.first?.phAssetLocalIdentifier
     }
 
     // MARK: - Location → home/away

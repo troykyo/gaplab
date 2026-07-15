@@ -61,7 +61,9 @@ final class ClaudeService {
         Reference the player's journey from his earliest career entry to today.
         Include the score prominently. Use exclamations like "Wat een wedstrijd!" or "Trots!".
         End with a blank line then return only the hashtag strings as a JSON array
-        (no # symbol, just the words). Format your full response as JSON:
+        (no # symbol, just the words). All hashtags must be in English — the caption
+        may mix Dutch and English, but hashtags are English only.
+        Format your full response as JSON:
         {"caption": "...", "hashtags": ["tag1", "tag2", ...]}
         """
 

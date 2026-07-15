@@ -192,9 +192,10 @@ final class AddMatchViewModel: ObservableObject {
                     var imageURLs: [URL] = []
                     if let coverURL = hostedURL { imageURLs.append(coverURL) }
 
+                    // Remaining photos follow in the user-arranged order (cover is already first)
                     let photos = group.sortedPhotos
-                    let nonCoverID = group.coverAssetID ?? photos.first?.phAssetLocalIdentifier
-                    for photo in photos where photo.phAssetLocalIdentifier != nonCoverID {
+                    let coverID = group.coverPhoto?.phAssetLocalIdentifier
+                    for photo in photos where photo.phAssetLocalIdentifier != coverID {
                         let data = try await queueVM.loadFullResImage(for: photo)
                         guard let image = NSImage(data: data),
                               let jpeg = ImageResizer.resize(image) else { throw AppError.imageResizeFailed }

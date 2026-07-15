@@ -36,15 +36,16 @@ enum HashtagBuilder {
         if let ag = ageGroup {
             tags.append(ag.replacingOccurrences(of: " ", with: ""))
             let digits = ag.filter { $0.isNumber }
-            if !digits.isEmpty { tags.append("Onder\(digits)") }
+            if !digits.isEmpty { tags.append("Under\(digits)") }
         }
 
         let ours   = wasHome ? homeGoals : awayGoals
         let theirs = wasHome ? awayGoals : homeGoals
         tags.append("\(ours)x\(theirs)")
 
-        tags += ["voetbal", "dutchfootball", "KNVB", "Netherlands",
-                 "football", "matchday", "jeugdvoetbal", "youthfootball", "kidswhokick"]
+        // English-only tags (KNVB stays — it's the association's name)
+        tags += ["football", "dutchfootball", "KNVB", "Netherlands",
+                 "matchday", "youthfootball", "grassrootsfootball", "kidswhokick"]
 
         let unique = Array(NSOrderedSet(array: tags).compactMap { $0 as? String })
         return Array(unique.prefix(maxTags))
