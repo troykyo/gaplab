@@ -21,10 +21,7 @@ let package = Package(
         .executableTarget(
             name: "MatchPost",
             dependencies: ["MatchPostCore"],
-            path: "Sources/MatchPost",
-            resources: [
-                .process("Resources"),
-            ]
+            path: "Sources/MatchPost"
         ),
 
         // Photos Project Extension (File → Create → MatchPost in Photos.app)
