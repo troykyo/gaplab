@@ -64,7 +64,15 @@ final class PersistenceController {
     static let appGroupID = "group.com.troykyo.matchpost"
 
     init(inMemory: Bool = false) {
-        container = NSPersistentContainer(name: "MatchPost")
+        // Load the compiled CoreData model from the SwiftPM resource bundle explicitly.
+        // NSPersistentContainer(name:) alone searches the main bundle, which does not
+        // contain the .momd when resources are vended via Bundle.module.
+        if let modelURL = Bundle.module.url(forResource: "MatchPost", withExtension: "momd"),
+           let model = NSManagedObjectModel(contentsOf: modelURL) {
+            container = NSPersistentContainer(name: "MatchPost", managedObjectModel: model)
+        } else {
+            container = NSPersistentContainer(name: "MatchPost")
+        }
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
         } else {
