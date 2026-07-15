@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Player" representedClassName="Player" syncable="YES" codeGenerationType="none">
+        <attribute name="currentJerseyNumber" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="currentTeamName" optional="YES" attributeType="String"/>
+        <attribute name="dateOfBirth" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="instagramHandle" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String" defaultValueString=""/>
+        <attribute name="position" attributeType="String" defaultValueString="Midfielder"/>
+        <relationship name="careerEntries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CareerEntry" inverseName="player" inverseEntity="CareerEntry"/>
+        <relationship name="matchPhotos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MatchPhoto" inverseName="player" inverseEntity="MatchPhoto"/>
+        <relationship name="stagedPhotos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="StagedPhoto" inverseName="player" inverseEntity="StagedPhoto"/>
+        <relationship name="stagedGroups" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="StagedPostGroup" inverseName="player" inverseEntity="StagedPostGroup"/>
+    </entity>
+    <entity name="CareerEntry" representedClassName="CareerEntry" syncable="YES" codeGenerationType="none">
+        <attribute name="ageGroup" attributeType="String" defaultValueString="U14"/>
+        <attribute name="jerseyNumber" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="seasonEnd" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="seasonStart" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="teamName" attributeType="String" defaultValueString=""/>
+        <relationship name="player" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Player" inverseName="careerEntries" inverseEntity="Player"/>
+    </entity>
+    <entity name="MatchRecord" representedClassName="MatchRecord" syncable="YES" codeGenerationType="none">
+        <attribute name="awayGoals" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="competition" optional="YES" attributeType="String"/>
+        <attribute name="homeGoals" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="knvbMatchID" optional="YES" attributeType="String"/>
+        <attribute name="matchDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="opponentName" attributeType="String" defaultValueString=""/>
+        <attribute name="venueCity" optional="YES" attributeType="String"/>
+        <attribute name="venueName" optional="YES" attributeType="String"/>
+        <attribute name="wasHome" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <relationship name="photos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MatchPhoto" inverseName="matchRecord" inverseEntity="MatchPhoto"/>
+    </entity>
+    <entity name="MatchPhoto" representedClassName="MatchPhoto" syncable="YES" codeGenerationType="none">
+        <attribute name="captionText" optional="YES" attributeType="String"/>
+        <attribute name="claudeAnalysisJSON" optional="YES" attributeType="String"/>
+        <attribute name="exifDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="exifLatitude" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="exifLongitude" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="imageData" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="instagramPostID" optional="YES" attributeType="String"/>
+        <attribute name="thumbnailData" optional="YES" attributeType="Binary"/>
+        <relationship name="matchRecord" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MatchRecord" inverseName="photos" inverseEntity="MatchRecord"/>
+        <relationship name="player" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Player" inverseName="matchPhotos" inverseEntity="Player"/>
+        <relationship name="stagedFrom" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="StagedPhoto" inverseName="postedAs" inverseEntity="StagedPhoto"/>
+        <relationship name="stagedGroup" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="StagedPostGroup" inverseName="postedAs" inverseEntity="StagedPostGroup"/>
+    </entity>
+    <entity name="StagedPhoto" representedClassName="StagedPhoto" syncable="YES" codeGenerationType="none">
+        <attribute name="addedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="exifDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="phAssetLocalIdentifier" attributeType="String" defaultValueString=""/>
+        <attribute name="queuePosition" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="status" attributeType="String" defaultValueString="pending"/>
+        <attribute name="thumbnailData" optional="YES" attributeType="Binary"/>
+        <relationship name="player" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Player" inverseName="stagedPhotos" inverseEntity="Player"/>
+        <relationship name="postedAs" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MatchPhoto" inverseName="stagedFrom" inverseEntity="MatchPhoto"/>
+        <relationship name="group" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="StagedPostGroup" inverseName="photos" inverseEntity="StagedPostGroup"/>
+    </entity>
+    <entity name="StagedPostGroup" representedClassName="StagedPostGroup" syncable="YES" codeGenerationType="none">
+        <attribute name="addedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="coverAssetID" optional="YES" attributeType="String"/>
+        <attribute name="groupID" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="sessionDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="status" attributeType="String" defaultValueString="pending"/>
+        <relationship name="photos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="StagedPhoto" inverseName="group" inverseEntity="StagedPhoto"/>
+        <relationship name="player" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Player" inverseName="stagedGroups" inverseEntity="Player"/>
+        <relationship name="postedAs" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MatchPhoto" inverseName="stagedGroup" inverseEntity="MatchPhoto"/>
+    </entity>
+</model>
