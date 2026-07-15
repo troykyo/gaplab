@@ -44,7 +44,7 @@ enum HashtagBuilder {
         tags.append("\(ours)x\(theirs)")
 
         tags += ["voetbal", "dutchfootball", "KNVB", "Netherlands",
-                 "football", "matchday", "jeugdvoetbal", "kidswhokick", "voetballife"]
+                 "football", "matchday", "jeugdvoetbal", "youthfootball", "kidswhokick"]
 
         let unique = Array(NSOrderedSet(array: tags).compactMap { $0 as? String })
         return Array(unique.prefix(maxTags))

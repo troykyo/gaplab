@@ -129,7 +129,9 @@ final class PostingQueueViewModel: ObservableObject {
                         id:            UUID().uuidString,
                         exifDate:      exif.date,
                         thumbnailData: thumbnail,
-                        imageData:     data
+                        imageData:     data,
+                        latitude:      exif.coordinate?.latitude  ?? 0,
+                        longitude:     exif.coordinate?.longitude ?? 0
                     ))
                 }
             }
@@ -145,7 +147,9 @@ final class PostingQueueViewModel: ObservableObject {
                         id:            UUID().uuidString,
                         exifDate:      exif.date,
                         thumbnailData: thumbnail,
-                        imageData:     data
+                        imageData:     data,
+                        latitude:      exif.coordinate?.latitude  ?? 0,
+                        longitude:     exif.coordinate?.longitude ?? 0
                     ))
                 }
             }

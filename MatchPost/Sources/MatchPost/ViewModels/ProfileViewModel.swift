@@ -4,7 +4,7 @@ import SwiftUI
 @MainActor
 final class ProfileViewModel: ObservableObject {
     @Published var name: String = ""
-    @Published var position: String = "Midfielder"
+    @Published var position: String = "Central Midfielder"
     @Published var currentTeam: String = ""
     @Published var jerseyNumber: String = ""
     @Published var instagramHandle: String = ""
@@ -12,11 +12,21 @@ final class ProfileViewModel: ObservableObject {
     @Published var careerEntries: [CareerEntryDraft] = []
     @Published var isSaved = false
 
-    let positions = ["Goalkeeper", "Defender", "Midfielder", "Forward"]
+    let positions = [
+        "Goalkeeper",
+        "Right Back", "Centre Back", "Left Back", "Wing Back",
+        "Defensive Midfielder", "Central Midfielder", "Attacking Midfielder",
+        "Right Winger", "Left Winger",
+        "Second Striker", "Striker",
+    ]
 
     func load(from player: Player) {
         name            = player.name
-        position        = player.position
+        // Map legacy generic positions to the specific list so the picker keeps a valid selection
+        let legacy = ["Midfielder": "Central Midfielder", "Defender": "Centre Back", "Forward": "Striker"]
+        position        = positions.contains(player.position)
+                        ? player.position
+                        : (legacy[player.position] ?? "Central Midfielder")
         currentTeam     = player.currentTeamName ?? ""
         jerseyNumber    = "\(player.currentJerseyNumber)"
         instagramHandle = player.instagramHandle ?? ""

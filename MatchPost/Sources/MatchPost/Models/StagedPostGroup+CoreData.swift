@@ -45,6 +45,27 @@ extension StagedPostGroup {
         return sortedPhotos.first
     }
 
+    // MARK: - Location → home/away
+
+    /// First photo in the group that carries GPS data.
+    var locatedPhoto: StagedPhoto? {
+        sortedPhotos.first { $0.exifLatitude != 0 || $0.exifLongitude != 0 }
+    }
+
+    /// The home ground this session was played at, if any photo's GPS falls
+    /// within a configured home venue radius.
+    var homeVenue: HomeVenue? {
+        guard let photo = locatedPhoto else { return nil }
+        return HomeVenueLocator.homeVenue(latitude: photo.exifLatitude,
+                                          longitude: photo.exifLongitude)
+    }
+
+    /// true = home, false = away, nil = no GPS data on any photo.
+    var isHomeMatch: Bool? {
+        guard locatedPhoto != nil else { return nil }
+        return homeVenue != nil
+    }
+
     // MARK: - Fetch
 
     /// All pending groups for a player, sorted oldest session first.
@@ -81,7 +102,9 @@ extension StagedPostGroup {
                 exifDate:      c.exifDate,
                 thumbnailData: c.thumbnailData,
                 player:        player,
-                context:       context
+                context:       context,
+                latitude:      c.latitude,
+                longitude:     c.longitude
             )
             photo.imageData = c.imageData
             photo.group     = group

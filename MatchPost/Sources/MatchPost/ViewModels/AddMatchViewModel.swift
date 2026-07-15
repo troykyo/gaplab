@@ -66,6 +66,12 @@ final class AddMatchViewModel: ObservableObject {
     func loadFromQueue(_ group: StagedPostGroup) {
         sourceStagedGroup = group
         guard let cover = group.coverPhoto else { step = .failed; error = .noImageSelected; return }
+
+        // Pre-fill the manual form from the group's metadata: session date from EXIF,
+        // home/away from photo GPS vs the configured home grounds (DBS, vv Acht).
+        manualMatch.date = group.sessionDate
+        if let isHome = group.isHomeMatch { manualMatch.wasHome = isHome }
+
         step = .analyzing
         Task {
             do {
@@ -234,12 +240,13 @@ final class AddMatchViewModel: ObservableObject {
             record.venueCity    = m.venueCity
             record.competition  = m.competition
         } else {
-            record.matchDate    = exifData?.date ?? Date()
+            record.matchDate    = exifData?.date ?? sourceStagedGroup?.sessionDate ?? Date()
             record.opponentName = manualMatch.opponent
             record.homeGoals    = Int16(manualMatch.homeGoals)
             record.awayGoals    = Int16(manualMatch.awayGoals)
             record.wasHome      = manualMatch.wasHome
             record.competition  = manualMatch.competition
+            record.venueName    = sourceStagedGroup?.homeVenue?.name
         }
         return record
     }

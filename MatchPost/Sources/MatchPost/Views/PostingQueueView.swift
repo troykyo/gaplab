@@ -164,7 +164,7 @@ struct StagedGroupRow: View {
                     }
                     Text(sessionLabel)
                         .font(.subheadline)
-                    HStack(spacing: 4) {
+                    HStack(spacing: 6) {
                         if group.isCarousel {
                             Image(systemName: "rectangle.stack.fill")
                                 .font(.caption)
@@ -173,6 +173,7 @@ struct StagedGroupRow: View {
                         Text(typeLabel)
                             .font(.caption)
                             .foregroundStyle(group.isCarousel ? .blue : .secondary)
+                        homeAwayBadge
                     }
                 }
 
@@ -225,6 +226,29 @@ struct StagedGroupRow: View {
     }
 
     // MARK: - Sub-views
+
+    /// Home/away chip derived from photo GPS vs configured home grounds.
+    @ViewBuilder
+    private var homeAwayBadge: some View {
+        switch group.isHomeMatch {
+        case .some(true):
+            chip("Home · \(group.homeVenue?.name ?? "")", color: .green,
+                 icon: "house.fill")
+        case .some(false):
+            chip("Away", color: .orange, icon: "bus.fill")
+        case .none:
+            EmptyView()   // no GPS on any photo — user picks home/away in the form
+        }
+    }
+
+    private func chip(_ text: String, color: Color, icon: String) -> some View {
+        Label(text, systemImage: icon)
+            .font(.caption2.bold())
+            .foregroundStyle(color)
+            .padding(.horizontal, 6).padding(.vertical, 2)
+            .background(color.opacity(0.12))
+            .clipShape(Capsule())
+    }
 
     private var positionBadge: some View {
         ZStack {
