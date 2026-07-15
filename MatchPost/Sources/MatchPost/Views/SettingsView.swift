@@ -155,6 +155,12 @@ struct SecureRow: View {
     @Binding var text: String
     let key: KeychainKey
 
+    init(_ label: String, text: Binding<String>, key: KeychainKey) {
+        self.label = label
+        self._text = text
+        self.key   = key
+    }
+
     var body: some View {
         HStack {
             Text(label).frame(width: 130, alignment: .leading).foregroundStyle(.secondary)
