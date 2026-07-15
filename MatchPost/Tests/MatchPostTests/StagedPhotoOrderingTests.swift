@@ -1,6 +1,6 @@
 import XCTest
 import CoreData
-@testable import MatchPostCore
+@testable import MatchPost
 
 final class StagedPhotoOrderingTests: XCTestCase {
     var ctx: NSManagedObjectContext!
