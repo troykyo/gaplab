@@ -13,10 +13,14 @@ and this file. **No application code changed.**
 
 Two research findings landed, and one research task died:
 
-- **KNVB data: settled.** The KNVB Dataservice ended 1 July 2017; voetbal.nl has
-  no public API and its terms explicitly ban scraping. `KNVBService.swift` and
-  `VoetbalScraper.swift` are both dead code and are deleted in S1. Manual entry
-  becomes the primary path. Full reasoning and sources in `PLAN.md`.
+- **KNVB data: partly settled.** Solid: voetbal.nl's terms prohibit scraping, so
+  `VoetbalScraper.swift` goes in S1. Also solid: working integrations use
+  `data.sportlink.com` with a **club-owned `client_id`**. **Not verified:** the
+  present state of `api.knvbdataservice.nl` — this container's egress allowlist
+  blocks all Dutch domains, so neither the agent nor I ever loaded it. An
+  earlier claim that it is "dead" was overstated and has been corrected in
+  `PLAN.md`. `KNVBService.swift` is **quarantined, not deleted**, pending
+  Troy's check. Manual entry is the primary path either way.
 - **Instagram requirements: NOT verified.** That agent died on an org spend
   limit. Nothing may be built on `InstagramService` until it is re-run —
   including the open question of Meta's policy on API publishing to a **minor's**

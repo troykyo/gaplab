@@ -15,17 +15,23 @@ are worth the larger one.
 ## S1 — Delete the dead data layer, fix the two known bugs
 **Design gate:** none · **Model:** small · **Status:** next
 
-The KNVB research killed two services. Remove them rather than leave fiction in
-the tree, and fix the two bugs found in the same audit.
+Take the lookup path out of the critical path, and fix the model ID.
 
-- Delete `Services/KNVBService.swift` and `Services/VoetbalScraper.swift`
-- Remove the KNVB path from `AddMatchViewModel.analyze()` — manual entry becomes
-  the only path to match details
-- Remove `knvbAPIKey` from `KeychainKey` and its row in `SettingsView`
+- **Delete `Services/VoetbalScraper.swift`** — voetbal.nl's terms prohibit
+  scripts and robots. Solid ground, delete outright.
+- **Quarantine `Services/KNVBService.swift`, do not delete it.** Whether a key
+  is obtainable is still unverified (see `PLAN.md`). Unwire it from the app so
+  nothing calls it, and leave the file with a header comment saying what is
+  unverified about it. Its `/v2/` endpoints were written from recall and its
+  host is plain `http://`; if a key does materialise, rewrite rather than revive.
+- Remove the lookup path from `AddMatchViewModel.analyze()` — manual entry
+  becomes the only route to match details
 - **Fix the Claude model ID** in `ClaudeService` — `claude-sonnet-4-6` is not a
   current model and the first API call would fail. **Verify the current ID by
   searching; do not recall it.**
-- Delete `KNVBMatch` / `KNVBMatchRow` and the match-picker step in `AddMatchView`
+- Remove the match-picker step from `AddMatchView` (keep `KNVBMatch` as a
+  value type — it costs nothing and S7 would want it back)
+- Keep `knvbAPIKey` in `KeychainKey`; harmless, and removing it is churn
 
 *Files: ~6. Net deletion. This sprint should make the app smaller.*
 

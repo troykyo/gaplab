@@ -75,23 +75,47 @@ own all `Task { }`. Views own no business logic.
 
 ## Match data — decided by research, not assumption
 
-**Finding: there is no legitimate automated route to a district-level JO14
-team's scores.** Researched 2026-07-28, sources in the session log:
+Researched 2026-07-28. **Read the confidence labels** — the container's egress
+allowlist blocks every Dutch domain (`x-deny-reason: host_not_allowed`), so
+nothing below was confirmed by loading the actual page. It comes from
+search-index content and from third-party source code on GitHub.
 
-- The **KNVB Dataservice ended 1 July 2017.** `api.knvbdataservice.nl` is a
-  documentation site for the successor (Voetbal Data Centre), requires a
-  commercial licence, and is not obtainable by an individual.
-  Source: Sportlink support article "De KNVB-Dataservice stopt, wat nu?"
-- **voetbal.nl has no public JSON API** — HTML only, and appears to have
-  required login since 2026.
+**Reasonably solid:**
+
+- Sportlink published a support article titled *"De KNVB-Dataservice stopt,
+  wat nu?"* announcing the Dataservice ending **1 July 2017**, with clubs
+  migrated to **Sportlink Club.Dataservice**; the commercial arm is now
+  **Voetbal Data Centre**.
+- Working third-party integrations call **`data.sportlink.com`** with a
+  **`client_id`**, not `api.knvbdataservice.nl`. That `client_id` lives in the
+  club's Sportlink Club admin panel — the club owns it, not a parent.
+- **voetbal.nl has no public JSON API** — HTML only.
 - **voetbal.nl's terms explicitly prohibit** "software, apparaten, scripts,
   robots … om Voetbal.nl gegevens te kopiëren of te scrapen". Enforceable
-  under Dutch law. Scraping it is out.
+  under Dutch law. **Scraping it is out** — this is the firmest finding here.
 
-**Consequence: `KNVBService.swift` and `VoetbalScraper.swift` are both dead.**
-One targets a service that ended in 2017; the other violates terms of service.
-Both are deleted in Sprint 1. This is a subsystem removed by a research
-finding — the cheapest kind of win available.
+**NOT verified — do not repeat as fact:**
+
+- The present state of `api.knvbdataservice.nl`. It is indexed as a live
+  documentation site (chapter URLs like `/hoofdstuk/wedstrijden`). Whether it
+  still serves docs, and whether any key can be obtained through it, is
+  **unknown from this container**. Troy can load it in a browser in ten
+  seconds; that settles it.
+- That voetbal.nl requires login since 2026 (single-source, a scraper README).
+
+**Consequence for the code:**
+
+- **`VoetbalScraper.swift` is deleted** in S1. The scraping prohibition is the
+  solid finding, and that is sufficient grounds on its own.
+- **`KNVBService.swift` is quarantined, not deleted**, pending Troy's check.
+  Note that its current contents are wrong regardless: the `/v2/` endpoint
+  shapes were written from recall, and the host is plain `http://`, which App
+  Transport Security blocks. If a key does turn out to be obtainable, the file
+  gets rewritten against verified endpoints rather than resurrected.
+
+**The question that actually decides this is not "is the site up?" but "can
+Troy obtain a key?"** Everything hangs on that, and it is answered by asking
+the club, not by reading documentation.
 
 **What replaces them, in order of preference:**
 
