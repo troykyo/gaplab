@@ -94,28 +94,48 @@ search-index content and from third-party source code on GitHub.
   robots … om Voetbal.nl gegevens te kopiëren of te scrapen". Enforceable
   under Dutch law. **Scraping it is out** — this is the firmest finding here.
 
-**NOT verified — do not repeat as fact:**
+**Verified by Troy loading the docs, 2026-07-28 — this supersedes the above:**
 
-- The present state of `api.knvbdataservice.nl`. It is indexed as a live
-  documentation site (chapter URLs like `/hoofdstuk/wedstrijden`). Whether it
-  still serves docs, and whether any key can be obtained through it, is
-  **unknown from this container**. Troy can load it in a browser in ten
-  seconds; that settles it.
-- That voetbal.nl requires login since 2026 (single-source, a scraper README).
+`api.knvbdataservice.nl` is **live**, serving the *Voetbal Datacentre API*
+documentation. An earlier claim in this file that it was dead was wrong: what
+was true is only that this container cannot reach it.
 
-**Consequence for the code:**
+- **Real API host: `https://api.voetbaldatacentre.nl/api/`** — HTTPS. The
+  `http://api.knvbdataservice.nl/v2/` base in `KNVBService.swift` was invented
+  from recall and is wrong on both host and path. HTTPS also removes the App
+  Transport Security problem.
+- **Auth is two-step, not a bearer key.** Every call carries `PHPSESSID`
+  (obtained from an initialisation call) plus `hash` (computed client-side).
+  The docs state plainly: *"U heeft een API sleutel nodig."*
+- **`GET /api/wedstrijden`** returns a match listing **for the whole club**, so
+  youth teams are included. Optional params: `weeknummer` (1–52, or `A` for
+  everything), `zaalveld`, `comptype` (`R` regular / `B` cup / `N` play-off /
+  `V` friendly), `order=time`.
+- **The output carries everything `MatchRecord` needs:** `Datum`, `Tijd`,
+  `ThuisClub` / `UitClub`, `ThuisTeamId` / `UitTeamId`, `PuntenTeam1` /
+  `PuntenTeam2`, plus extra-time and penalty variants, `Competitie`,
+  `District`, `MatchID`, `WedstrijdNummer`, and full venue address
+  (`Facility_naam`, `_Stad`, `_Postcode`, `_Adres`).
 
-- **`VoetbalScraper.swift` is deleted** in S1. The scraping prohibition is the
-  solid finding, and that is sufficient grounds on its own.
-- **`KNVBService.swift` is quarantined, not deleted**, pending Troy's check.
-  Note that its current contents are wrong regardless: the `/v2/` endpoint
-  shapes were written from recall, and the host is plain `http://`, which App
-  Transport Security blocks. If a key does turn out to be obtainable, the file
-  gets rewritten against verified endpoints rather than resurrected.
+**What this changes:**
 
-**The question that actually decides this is not "is the site up?" but "can
-Troy obtain a key?"** Everything hangs on that, and it is answered by asking
-the club, not by reading documentation.
+- **Home/away becomes exact.** Comparing his team against `ThuisTeamId` /
+  `UitTeamId` beats inferring from GPS radius. `HomeVenueLocator` stays as the
+  fallback for when no match record is available, not as the primary signal.
+- **Almost all manual entry disappears** where a key exists — opponent, score,
+  competition, venue and date all arrive from one call.
+- **`KNVBService.swift` is rewritten, not revived.** Correct host, HTTPS, the
+  `PHPSESSID` + `hash` flow, and `/api/wedstrijden` decoding.
+
+**Still open — the one thing that gates it:** whether Troy can obtain a key as
+an individual, or only through DBS / vv Acht's club account. The `client_id`
+evidence from third-party integrations suggests club-mediated, but the docs
+site being public and live means a direct route may exist. **Ask the club
+regardless** — it costs one email and unlocks the whole path.
+
+**Unrelated but still solid: `VoetbalScraper.swift` is deleted in S1.**
+voetbal.nl's terms prohibit scripts and robots, and none of the above changes
+that. With a real API available, scraping has no reason to exist anyway.
 
 **What replaces them, in order of preference:**
 

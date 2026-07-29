@@ -13,14 +13,16 @@ and this file. **No application code changed.**
 
 Two research findings landed, and one research task died:
 
-- **KNVB data: partly settled.** Solid: voetbal.nl's terms prohibit scraping, so
-  `VoetbalScraper.swift` goes in S1. Also solid: working integrations use
-  `data.sportlink.com` with a **club-owned `client_id`**. **Not verified:** the
-  present state of `api.knvbdataservice.nl` — this container's egress allowlist
-  blocks all Dutch domains, so neither the agent nor I ever loaded it. An
-  earlier claim that it is "dead" was overstated and has been corrected in
-  `PLAN.md`. `KNVBService.swift` is **quarantined, not deleted**, pending
-  Troy's check. Manual entry is the primary path either way.
+- **KNVB data: settled, and better than expected.** Troy loaded the docs: the
+  **Voetbal Datacentre API is live** at `https://api.voetbaldatacentre.nl/api/`,
+  and `GET /api/wedstrijden` returns date, both clubs, team IDs, score, extra
+  time, penalties, competition and full venue address — an entire `MatchRecord`
+  from one call, with **exact** home/away rather than GPS inference. My earlier
+  claim that it was dead was wrong; what was true is that this container cannot
+  reach any Dutch domain. `KNVBService.swift` gets **rewritten** in S7 (its
+  host, path and auth were all invented from recall). `VoetbalScraper.swift` is
+  still deleted in S1 — the scraping prohibition is unaffected, and with a real
+  API there is no reason for it. **Gate: obtaining an API key.**
 - **Instagram requirements: NOT verified.** That agent died on an org spend
   limit. Nothing may be built on `InstagramService` until it is re-run —
   including the open question of Meta's policy on API publishing to a **minor's**
@@ -63,8 +65,10 @@ net deletion. No blockers.
 1. **Publishing decision, A or B** (`PLAN.md` → Publishing). Blocks S5.
    Recommendation: **B** — export and post from the phone, deleting three
    subsystems and six credentials.
-2. **Email the DBS / vv Acht webmaster** asking for their Sportlink
-   `client_id`. Costs nothing to ask; unlocks legitimate automated results (S7).
+2. **Get a Voetbal Datacentre API key** — either directly if individual signup
+   exists, or via the DBS / vv Acht webmaster. Unlocks S7, which removes almost
+   all manual entry. Also paste the **initialisatie** chapter of the docs: the
+   `PHPSESSID` + `hash` flow must be implemented from the spec, not guessed.
 3. **Confirm the app still launches** and text fields now accept input.
 
 ## Open threads

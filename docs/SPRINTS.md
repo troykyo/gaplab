@@ -19,11 +19,12 @@ Take the lookup path out of the critical path, and fix the model ID.
 
 - **Delete `Services/VoetbalScraper.swift`** — voetbal.nl's terms prohibit
   scripts and robots. Solid ground, delete outright.
-- **Quarantine `Services/KNVBService.swift`, do not delete it.** Whether a key
-  is obtainable is still unverified (see `PLAN.md`). Unwire it from the app so
-  nothing calls it, and leave the file with a header comment saying what is
-  unverified about it. Its `/v2/` endpoints were written from recall and its
-  host is plain `http://`; if a key does materialise, rewrite rather than revive.
+- **Quarantine `Services/KNVBService.swift`, do not delete it.** The API is
+  confirmed live (see `PLAN.md`) but its host, path and auth flow in this file
+  are all wrong — invented from recall. Unwire it so nothing calls it, and
+  leave a header comment recording the verified host
+  (`https://api.voetbaldatacentre.nl/api/`) and the `PHPSESSID` + `hash` flow,
+  so S7 rewrites from facts rather than re-deriving them.
 - Remove the lookup path from `AddMatchViewModel.analyze()` — manual entry
   becomes the only route to match details
 - **Fix the Claude model ID** in `ClaudeService` — `claude-sonnet-4-6` is not a
@@ -103,19 +104,27 @@ and A cannot be built responsibly before it lands.
 *Lowest priority: needs a career record worth showing, so it wants a few
 matches in the database first.*
 
-## S7 — Club data integration *(optional)*
-**Design gate:** none, but **blocked on Troy emailing the club** · **Model:** small
+## S7 — Voetbal Datacentre API
+**Design gate:** none, but **blocked on obtaining an API key** · **Model:** medium
 
-Only worth doing if DBS or vv Acht hand over their Sportlink `client_id`.
-Gives automated fixtures *and* results, legitimately.
+Promoted from "optional" — the API is confirmed live and returns everything
+`MatchRecord` needs in one call. This removes nearly all manual entry.
 
-- `Services/SportlinkService.swift` against `data.sportlink.com` with the
-  club's `client_id`, article `uitslagen`, filtered by `teamcode`
-- Fall back silently to manual entry when it returns nothing
-- **Never** reuse a `client_id` found in someone else's page HTML
+- Rewrite `KNVBService.swift` against the verified surface: host
+  `https://api.voetbaldatacentre.nl/api/`, the `PHPSESSID` + client-side `hash`
+  auth flow, and `GET /api/wedstrijden`
+- Decode the listing and filter to his team via `ThuisTeamId` / `UitTeamId` —
+  which also gives **exact** home/away, replacing the GPS inference
+- Match a `StagedPostGroup` to a fixture by date, then pre-fill opponent,
+  score, competition and venue
+- Fall back silently to manual entry (S2) whenever there is no key, no network,
+  or no fixture on that date — S2 stays the path that always works
+- **Never** reuse a `client_id` or key found in someone else's page HTML
 
-*Fixtures-only alternative if the club says no: parse the tokenised iCal feed.
-Gives date, opponent, home/away, venue — no scores.*
+*Needs before starting: the key, plus the **initialisatie** chapter of the docs
+(how `PHPSESSID` is obtained and how `hash` is computed). Do not guess the hash
+algorithm — that is precisely the kind of recall that produced the wrong host
+in the first place.*
 
 ---
 
