@@ -17,8 +17,12 @@ are worth the larger one.
 
 Take the lookup path out of the critical path, and fix the model ID.
 
-- **Delete `Services/VoetbalScraper.swift`** — voetbal.nl's terms prohibit
-  scripts and robots. Solid ground, delete outright.
+- **Quarantine `Services/VoetbalScraper.swift` — do NOT delete it.** Unwire it
+  so nothing calls it, and leave a header comment stating that voetbal.nl's
+  terms prohibit scripts and robots, and that S7's sanctioned API supersedes it.
+  *Deleting it in S1 was the wrong order: it removes a fallback before its
+  replacement exists, and S7 is gated on a key we do not yet have. It costs
+  nothing to leave the file sitting there unwired.*
 - **Quarantine `Services/KNVBService.swift`, do not delete it.** The API is
   confirmed live (see `PLAN.md`) but its host, path and auth flow in this file
   are all wrong — invented from recall. Unwire it so nothing calls it, and
@@ -58,6 +62,10 @@ this point is real until this sprint passes.
 
 - Confirm the corrected model ID against the live API
 - Generate one caption end-to-end from a real staged group
+- **Fix the caption voice.** Posts go from Troy's account about his son, so the
+  prompt must specify a parent's proud third-person voice. As written it could
+  produce first person ("I scored twice"), which is wrong and would only be
+  caught after posting. Keep it bilingual Dutch/English; hashtags English only.
 - Handle the failure modes properly: bad key, rate limit, malformed JSON,
   network down — each with a message that says what to do about it
 - Log the raw response on parse failure so the next fix isn't guesswork

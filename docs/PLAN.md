@@ -133,9 +133,11 @@ evidence from third-party integrations suggests club-mediated, but the docs
 site being public and live means a direct route may exist. **Ask the club
 regardless** — it costs one email and unlocks the whole path.
 
-**Unrelated but still solid: `VoetbalScraper.swift` is deleted in S1.**
-voetbal.nl's terms prohibit scripts and robots, and none of the above changes
-that. With a real API available, scraping has no reason to exist anyway.
+**`VoetbalScraper.swift` is quarantined, not deleted.** voetbal.nl's terms
+prohibit scripts and robots, and the sanctioned API supersedes it — but
+"superseded" only counts once the replacement works, and S7 is gated on a key
+we do not have. Nothing is removed from this repo until the thing replacing it
+runs. An unwired file costs nothing to keep.
 
 **What replaces them, in order of preference:**
 
@@ -195,12 +197,19 @@ wait before the URL is live.*
 - **Carousels take their ratio from the first image**, so a group mixing
   portrait and landscape needs one normalisation decision applied to all.
 
-### Open question — whose account?
+### Whose account — settled
 
-Troy said "I have a business account". If posts go to **Troy's own** account,
-the earlier concern about Meta policy for a minor's account **does not apply**
-and can be closed. If the target is his son's account, that question is still
-unverified and must be settled before S5. **Assumed: Troy's own account.**
+**Troy's own Business account** (confirmed 2026-07-28). The earlier concern
+about Meta's policy on API publishing to a minor's account **does not apply**
+and is closed. No account conversion is needed for his son, and nothing about
+the publishing path depends on the son having an Instagram presence at all.
+
+**Consequence for caption voice:** posts come from a parent's account about
+his son, so captions must read in **a parent's voice** — proud third person,
+not the player's first person. The current `generateCareerCaption` prompt says
+only "reference the player's journey", which is ambiguous enough to produce
+"Wat een wedstrijd! I scored twice" — wrong, and wrong in a way that would only
+be noticed after posting. Pinned down in S3.
 
 ## Captions
 

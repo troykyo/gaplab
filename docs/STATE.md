@@ -42,12 +42,20 @@ loading, `SecureRow` initialiser, activation policy for keyboard focus.
 **Unconfirmed:** whether the keyboard-focus fix (last commit) actually works —
 Troy has not reported back since it was pushed.
 
-## No scraped data exists
+## Scraped data — searched for, none found in the repo
 
-Worth stating plainly: **nothing has ever been scraped and there is no match
-database.** `VoetbalScraper.swift` has never run. The CoreData entities exist
-but hold essentially no rows — the career timeline is empty until either manual
-entry (S2) or the Voetbal Datacentre API (S7) fills it.
+Searched 2026-07-28: no database, dump, cache or committed match data exists in
+this repo. The only JSON is hand-written placeholder fixtures in `TestResources`
+(Ajax vs Feyenoord JO14), which nothing reads. `VoetbalScraper.swift` cannot
+have run in the Claude container — no Swift toolchain — and the app on Troy's
+Mac has only launched in the last few sessions.
+
+**Caveat: a local run on Troy's Mac would not be visible from here.** Troy
+raised that something was executed and took days; unresolved, and worth
+settling before anyone relies on the timeline being empty.
+
+**Nothing is deleted until its replacement runs.** `VoetbalScraper` and
+`KNVBService` are both quarantined-unwired rather than removed.
 
 ## Three known bugs, all from recalling instead of verifying
 
