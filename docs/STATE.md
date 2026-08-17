@@ -42,12 +42,22 @@ loading, `SecureRow` initialiser, activation policy for keyboard focus.
 **Unconfirmed:** whether the keyboard-focus fix (last commit) actually works —
 Troy has not reported back since it was pushed.
 
-## Two known bugs, both from recalling instead of verifying
+## No scraped data exists
+
+Worth stating plainly: **nothing has ever been scraped and there is no match
+database.** `VoetbalScraper.swift` has never run. The CoreData entities exist
+but hold essentially no rows — the career timeline is empty until either manual
+entry (S2) or the Voetbal Datacentre API (S7) fills it.
+
+## Three known bugs, all from recalling instead of verifying
 
 1. `ClaudeService.model = "claude-sonnet-4-6"` — not a current model ID. The
    first Claude call would fail. **Verify the current ID by searching.** Fixed in S1.
-2. `KNVBService` base URL is plain `http://` — App Transport Security would
-   block it anyway. Moot: the file is deleted in S1.
+2. `KNVBService` base URL is plain `http://` and the wrong host entirely.
+   Rewritten in S7 against `https://api.voetbaldatacentre.nl/api/`.
+3. `ImageResizer` preserves the source aspect ratio, but Instagram requires
+   4:5 … 1.91:1. A portrait phone photo (3:4) would be **rejected on the first
+   real post**. Fixed in S5a.
 
 ## Works and is tested
 
@@ -62,9 +72,11 @@ net deletion. No blockers.
 
 ## Blocked on Troy
 
-1. **Publishing decision, A or B** (`PLAN.md` → Publishing). Blocks S5.
-   Recommendation: **B** — export and post from the phone, deleting three
-   subsystems and six credentials.
+1. **Confirm the Instagram target is Troy's own Business account**, not his
+   son's. If his own, the unverified minor-account policy question closes.
+   *(Publishing itself is now decided: direct API, Cloudinary hosting. iCloud
+   and the other consumer drives are verified not to work — Meta fetches the
+   URL server-side and they return HTML, not image bytes.)*
 2. **Get a Voetbal Datacentre API key** — either directly if individual signup
    exists, or via the DBS / vv Acht webmaster. Unlocks S7, which removes almost
    all manual entry. Also paste the **initialisatie** chapter of the docs: the

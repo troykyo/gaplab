@@ -155,33 +155,52 @@ that. With a real API available, scraping has no reason to exist anyway.
    venue — **but no scores.** Useful for pre-filling everything except the
    result. Zero legal grey area.
 
-## Publishing — open decision
+## Publishing — decided: Instagram API
 
-**Status: unverified.** The research agent for this died on a spend limit, so
-current Instagram API requirements have *not* been confirmed. Nothing should be
-built on the existing `InstagramService` until they are.
+**Decision (Troy, 2026-07-28): publish directly via the Instagram API.** He has
+a Business account. `InstagramService` and `ImageHostingService` therefore stay;
+the "export and post from the phone" alternative is dropped.
 
-Two candidate designs:
+### Image hosting — iCloud is ruled out, verified
 
-**A — Direct API publish (what exists now, unverified).** Requires: converting
-the account to Business/Creator, a Meta developer app, OAuth, a public HTTPS
-image URL (hence Cloudinary), and periodic token refresh. Four of the eight
-credentials in Settings exist only to serve this. **Unresolved risk: the
-account belongs to a minor** — Meta's policy on API publishing to a 14-year-old's
-account is exactly the thing that needs verifying.
+Meta's servers **fetch the image URL server-side with cURL**, so the URL must be
+publicly reachable, require no authentication, and return **raw image bytes with
+a correct Content-Type**. It must not redirect to an HTML page.
 
-**B — Export and post from the phone (the reframe).** The app writes the
-ordered images and the caption to a folder (or the clipboard) and Troy posts
-from Instagram on his phone in about fifteen seconds. This **deletes three
-subsystems**: `InstagramService`, `ImageHostingService` (Cloudinary), and the
-OAuth flow — along with four credentials and the 60-day token-refresh chore.
+**iCloud does not work, and neither do Google Drive, Dropbox, OneDrive or
+SharePoint** — Meta names them explicitly. They all serve an HTML preview or
+download page rather than the file itself. So an Apple shared folder is not an
+option, and this is settled rather than a matter of configuration.
+Source: [Meta — Publish Content using the Instagram Platform](https://developers.facebook.com/docs/instagram-platform/content-publishing/)
 
-**Recommendation: B**, unless Troy specifically wants hands-off automation.
-The weekly cadence does not justify the setup burden or the ongoing
-maintenance, and B has no dependency on Meta policy for minors. B can be built
-now; A cannot be built responsibly until the research is redone.
+**Hosting stays Cloudinary** (already built, free tier, unsigned upload, no
+server). The deciding argument is that the hosting need is **transient** — Meta
+fetches the image once while creating the container, after which the URL can
+die. Cloudinary lets an image be deleted afterwards.
 
-**This needs Troy's decision before Sprint 5.**
+*Considered and rejected: publishing images through the GAP Lab site's own
+GitHub Pages (`thegaplab.net`), which Troy already owns. It would work, but git
+history is permanent — photos of a minor would remain public and recoverable
+forever even after "deletion", which is a materially different privacy posture
+from Instagram, where a post can actually be removed. Also adds a 30–60s deploy
+wait before the URL is live.*
+
+### Media constraints that affect our code
+
+- **JPEG only.** PNG, WebP, GIF rejected. `ImageResizer` already outputs JPEG.
+- **Aspect ratio must be between 4:5 (0.8) and 1.91:1.** `ImageResizer`
+  currently **preserves the source ratio**, so a portrait phone photo at 3:4
+  (0.75) — or anything shot 9:16 — would be **rejected on first post**. This is
+  a live bug, fixed in S5.
+- **Carousels take their ratio from the first image**, so a group mixing
+  portrait and landscape needs one normalisation decision applied to all.
+
+### Open question — whose account?
+
+Troy said "I have a business account". If posts go to **Troy's own** account,
+the earlier concern about Meta policy for a minor's account **does not apply**
+and can be closed. If the target is his son's account, that question is still
+unverified and must be settled before S5. **Assumed: Troy's own account.**
 
 ## Captions
 

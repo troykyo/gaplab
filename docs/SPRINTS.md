@@ -79,20 +79,38 @@ currently has no file behind it, and every view is full of `padding(12)` and
 
 *Files: `DesignTokens.swift` + 2 views. **S4b** sweeps the other four cheaply.*
 
-## S5 — Publishing
-**Design gate:** YES — blocked on the A/B decision in `PLAN.md` · **Model:** medium
+## S5a — Instagram-legal images
+**Design gate:** none · **Model:** small · **Unblocked**
 
-**Do not start this sprint until Troy chooses.** Recommendation is B.
+Split out because it is pure logic, fully testable, and a confirmed bug. Doing
+it before S5b means the first real post is not spent debugging a rejection.
 
-**If B (export — recommended):** write ordered images + caption to a dated
-folder, copy the caption to the clipboard, reveal in Finder. Then *delete*
-`InstagramService` and `ImageHostingService`, and remove six credentials from
-Settings. Small sprint, large deletion.
+- Split `ImageResizer.resize` into two jobs, which currently share one method
+  with the wrong parameters: `resizeForVision` (1568px long edge, ratio
+  irrelevant) and `resizeForInstagram` (1080px, **ratio clamped to 4:5 … 1.91:1**)
+- Out-of-range portraits: pad to 4:5 rather than crop — cropping a match photo
+  loses the ball or the player. Pad colour is a design token.
+- For a carousel, compute **one** target ratio from the cover and apply it to
+  every image, since Instagram takes the ratio from the first
+- Tests: 3:4 portrait → 4:5, 9:16 → 4:5, 16:9 → 1.91:1, 1:1 → unchanged
 
-**If A (direct API):** first re-run the Instagram research that died on a spend
-limit — current API, account requirements, **and Meta's policy on API
-publishing to a minor's account**. That verification is its own sprint (S5-pre)
-and A cannot be built responsibly before it lands.
+*Files: `ImageResizer`, `DesignTokens`, + tests. No network.*
+
+## S5b — Publish to Instagram
+**Design gate:** none · **Model:** medium · **Needs:** Meta app + token, S3, S5a
+
+Decision taken: **direct API publish**, Business account, Cloudinary hosting.
+iCloud and the other consumer drives are ruled out — see `PLAN.md`.
+
+- Cloudinary unsigned upload → public HTTPS URL returning raw JPEG bytes
+- Single image: create container → poll → publish
+- Carousel: child containers → `CAROUSEL` parent → poll → publish, in the
+  user-arranged order
+- Real failure handling: expired token, rate limit, container `ERROR`, and a
+  rejected aspect ratio — each with a message saying what to do
+- On success, mark the `StagedPostGroup` posted and write the `MatchPhoto`
+
+*Confirm first: posts go to **Troy's own** Business account, not his son's.*
 
 ## S6 — GAP Lab player page
 **Design gate:** YES — it's a public page on the lab's site · **Model:** medium
