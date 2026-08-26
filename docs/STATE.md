@@ -2,7 +2,7 @@
 
 Where we are right now. Read at the start of every session. Keep under a page.
 
-**Updated:** 2026-07-28 · **Branch:** `claude/soccer-match-instagram-app-bPEYF`
+**Updated:** 2026-08-17 · **Branch:** `claude/soccer-match-instagram-app-bPEYF`
 
 ---
 
@@ -44,7 +44,7 @@ Troy has not reported back since it was pushed.
 
 ## Scraped data — searched for, none found in the repo
 
-Searched 2026-07-28: no database, dump, cache or committed match data exists in
+Searched 2026-08-17: no database, dump, cache or committed match data exists in
 this repo. The only JSON is hand-written placeholder fixtures in `TestResources`
 (Ajax vs Feyenoord JO14), which nothing reads. `VoetbalScraper.swift` cannot
 have run in the Claude container — no Swift toolchain — and the app on Troy's

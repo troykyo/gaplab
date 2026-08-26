@@ -130,6 +130,27 @@ iCloud and the other consumer drives are ruled out — see `PLAN.md`.
 *Lowest priority: needs a career record worth showing, so it wants a few
 matches in the database first.*
 
+## S2b — Import fixtures from the voetbal.nl iCal feed
+**Design gate:** none · **Model:** small · **Needs:** Troy's calendar URL
+
+The practical answer to "where do I download the matches" without waiting on an
+API key. Ships right after manual entry and removes most of the typing from it.
+
+- Settings field for the tokenised feed URL (store in Keychain — it *is* a
+  credential; anyone with the URL can read the calendar)
+- Fetch the `.ics`, parse `VEVENT`s — no dependency, ICS is line-based text
+- Map each event to a fixture: date/time from `DTSTART`, opponent and home/away
+  from `SUMMARY`, venue from `LOCATION`
+- Match a `StagedPostGroup` to a fixture by date, pre-fill everything except
+  the score, and leave the score field focused so it is one number to type
+- Re-fetching is cheap, so refresh on demand rather than caching cleverly
+
+*Files: `Services/ICalFeedService.swift`, `Utilities/ICSParser.swift` (pure,
+tested), `SettingsView`, `AddMatchViewModel`.*
+
+*Unverified: whether the feed carries scores. If it turns out it does, S7 drops
+to optional. Troy settles this by subscribing and reading one event.*
+
 ## S7 — Voetbal Datacentre API
 **Design gate:** none, but **blocked on obtaining an API key** · **Model:** medium
 

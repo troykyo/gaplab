@@ -75,7 +75,7 @@ own all `Task { }`. Views own no business logic.
 
 ## Match data — decided by research, not assumption
 
-Researched 2026-07-28. **Read the confidence labels** — the container's egress
+Researched 2026-08-17. **Read the confidence labels** — the container's egress
 allowlist blocks every Dutch domain (`x-deny-reason: host_not_allowed`), so
 nothing below was confirmed by loading the actual page. It comes from
 search-index content and from third-party source code on GitHub.
@@ -94,7 +94,7 @@ search-index content and from third-party source code on GitHub.
   robots … om Voetbal.nl gegevens te kopiëren of te scrapen". Enforceable
   under Dutch law. **Scraping it is out** — this is the firmest finding here.
 
-**Verified by Troy loading the docs, 2026-07-28 — this supersedes the above:**
+**Verified by Troy loading the docs, 2026-08-17 — this supersedes the above:**
 
 `api.knvbdataservice.nl` is **live**, serving the *Voetbal Datacentre API*
 documentation. An earlier claim in this file that it was dead was wrong: what
@@ -152,14 +152,22 @@ runs. An unwired file costs nothing to keep.
    emailing the club webmaster** for their `client_id`. Do not reuse a
    `client_id` scraped from someone's HTML — that is unauthorised use of a
    licensed service.
-3. **iCal feed (fixtures only).** Voetbal.nl emails a tokenised calendar URL
-   (`data.sportlink.com/ical-team?token=…`). Gives date, opponent, home/away,
-   venue — **but no scores.** Useful for pre-filling everything except the
-   result. Zero legal grey area.
+3. **iCal feed — the answer to "where do I download the matches" today.**
+   Voetbal.nl emails a tokenised calendar URL on request:
+   `data.sportlink.com/ical-team?token=…` (team) or `…/data/ical-person?token=…`
+   (one player's programme). Sanctioned, stable, no key negotiation, no scraping.
+
+   Gives date, time, opponent, home/away and venue. **Believed not to carry
+   final scores** — flagged as unverified by the research, and settled the
+   moment Troy subscribes and looks at an event.
+
+   This is a good trade: it supplies every field that is tedious to type, and
+   withholds only the score — the one fact a parent who attended the match
+   always knows. Import the fixture, type `3–1`, done.
 
 ## Publishing — decided: Instagram API
 
-**Decision (Troy, 2026-07-28): publish directly via the Instagram API.** He has
+**Decision (Troy, 2026-08-17): publish directly via the Instagram API.** He has
 a Business account. `InstagramService` and `ImageHostingService` therefore stay;
 the "export and post from the phone" alternative is dropped.
 
@@ -199,7 +207,7 @@ wait before the URL is live.*
 
 ### Whose account — settled
 
-**Troy's own Business account** (confirmed 2026-07-28). The earlier concern
+**Troy's own Business account** (confirmed 2026-08-17). The earlier concern
 about Meta's policy on API publishing to a minor's account **does not apply**
 and is closed. No account conversion is needed for his son, and nothing about
 the publishing path depends on the son having an Instagram presence at all.
